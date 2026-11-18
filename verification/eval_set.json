@@ -1,0 +1,58 @@
+[
+  {
+    "question": "No me puedo conectar a la VPN desde mi casa",
+    "must_include": [
+      "cliente de VPN"
+    ]
+  },
+  {
+    "question": "Olvidé mi contraseña y no puedo entrar",
+    "must_include": [
+      "portal de autoservicio"
+    ]
+  },
+  {
+    "question": "No me llega el código de verificación a mi celular",
+    "must_include": [
+      "aplicación de autenticación"
+    ]
+  },
+  {
+    "question": "Outlook no me descarga los correos nuevos",
+    "must_include": [
+      "modo seguro"
+    ]
+  },
+  {
+    "question": "Mi laptop no enciende",
+    "must_include": [
+      "cargador original"
+    ]
+  },
+  {
+    "question": "Mi teclado tiene teclas que no funcionan",
+    "must_include": [
+      "Soporte en sitio"
+    ]
+  },
+  {
+    "question": "Necesito instalar un programa nuevo",
+    "must_include": [
+      "Mesa de Software"
+    ]
+  },
+  {
+    "question": "Quiero hablar con una persona",
+    "must_include": [
+      "Mesa de Servicio General"
+    ]
+  },
+  {
+    "question": "¿Qué clima hace hoy en Monterrey?",
+    "any_of": [
+      "Describe tu problema",
+      "describe",
+      "más detalle"
+    ]
+  }
+]
