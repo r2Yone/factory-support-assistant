@@ -13,7 +13,7 @@ y una persona aprueba el plan y revisa el resultado.
 | --- | --- | --- |
 | Plan | `architect` y tú lo apruebas | Humano en el lazo |
 | Pruebas primero | `qa-unit` | TDD |
-| Código | `developer` | |
+| Código | El especialista de la especificación: `developer` (arquitectura) u `observability` | |
 | unit → contract → qa | El código decide; al primer fallo se corrige (máximo 2) | Encadenamiento con compuertas |
 | Revisión contra QA.md | `qa-style` devuelve APROBADO o CAMBIOS (máximo 2 vueltas) | Evaluador-optimizador |
 | Pipeline y reporte | `scripts/pipeline.py` con la bitácora | |
@@ -32,7 +32,12 @@ La primera vez que abres `claude` en esta carpeta te pregunta **«Do you trust t
 responde que sí. Sin esa confianza, Claude Code ignora los permisos de `.claude/settings.json` y los agentes no pueden
 correr las verificaciones.
 
-Ejecuta `claude` y, dentro, escribe `/factory`. Al terminar tendrás:
+Ejecuta `claude` y, dentro, escribe `/factory` con la especificación que quieres construir, en orden:
+
+1. `/factory architecture`: `spec/01-architecture.md`, el asistente que busca soluciones o transfiere.
+2. `/factory observability`: `spec/02-observability.md`, folio por petición, logs JSON, métricas y trazas.
+
+Al terminar tendrás:
 
 - `output/plan.md`: el plan que aprobaste.
 - `output/qa-review.md`: la revisión de QA.

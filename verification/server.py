@@ -24,14 +24,25 @@ DEFAULTS = {
 
 
 @contextmanager
-def running_product(port: int, **env: str):
+def running_product(port: int, log_file: Path | None = None, **env: str):
     """Corre ``uvicorn app.main:app`` en ``port`` mientras dure el bloque.
 
     El cliente que entrega ya manda la clave de la fábrica en ``X-API-Key``.
+    Con ``log_file``, la salida estándar del producto (su log JSON) se guarda
+    en ese archivo para que las pruebas la lean.
     """
     settings = {**os.environ, **DEFAULTS, **env}
     command = [sys.executable, "-m", "uvicorn", "app.main:app", "--port", str(port)]
-    server = subprocess.Popen(command, cwd=PRODUCT, env=settings)
+    with open(log_file or os.devnull, "w", encoding="utf-8") as output:
+        server = subprocess.Popen(
+            command, cwd=PRODUCT, env=settings,
+            stdout=output if log_file else None,
+        )
+        yield from _serve(server, port)
+
+
+def _serve(server: subprocess.Popen, port: int):
+    """Espera a que el producto responda, entrega el cliente y lo detiene."""
     url = f"http://127.0.0.1:{port}"
     try:
         for _ in range(40):
