@@ -3,7 +3,7 @@ description: >-
   La fábrica del Support Assistant · architect → aprobación → qa-unit →
   especialista → compuertas (unit, contract, qa) → qa-style → pipeline y
   reporte. Ejemplo /factory architecture o /factory observability --aprobar
-argument-hint: "<architecture|observability> [--aprobar]"
+argument-hint: "<architecture|observability|costs> [--aprobar]"
 disable-model-invocation: true
 allowed-tools: >-
   Agent, Read, Write, AskUserQuestion, Bash(uv run python -m verification *),
@@ -19,6 +19,10 @@ Entrada: $ARGUMENTS. La primera palabra dice qué especificación se construye (
 | --- | --- | --- | --- |
 | `architecture` | `spec/01-architecture.md` | `developer` | Ninguno |
 | `observability` | `spec/02-observability.md` | `observability` | Debe existir `product/app/` |
+| `costs` | `spec/03-costs.md` | `costs` (y `qa-e2e` en paralelo) | Debe existir `product/app/` |
+
+Compuertas: con `architecture` y `observability` son `unit`, `contract` y `qa`. Con `costs` se agregan `e2e` y
+`evaluate`, en ese orden, al final.
 
 - `--aprobar` aprueba el plan por adelantado (paso 2).
 - Si no puedes preguntar (por ejemplo en `claude -p`), detente en el punto de aprobación y explica cómo seguir.
@@ -40,10 +44,16 @@ Lleva una bitácora: una línea por paso con lo que pasó.
    <SPEC>, actualízala y di cuál cambiaste y por qué».
    Corre `uv run python -m verification unit`; debe FALLAR (rojo), porque todavía no está el código nuevo.
 4. **Código.** Lanza <ESPECIALISTA> con: «Implementa <SPEC> según el plan aprobado».
-5. **Compuertas (máximo 2 correcciones).** Corre en orden `unit`, `contract` y `qa`, cada uno con
+   Con `costs`, en UN SOLO mensaje lanza también `qa-e2e` con «Escribe las pruebas de punta a punta de <SPEC>»:
+   no dependen entre sí y corren en paralelo. Si ya existe `product/e2e/` y el plan aprobado no cambia la página
+   web ni la sección «Pruebas de punta a punta» de <SPEC>, no lances `qa-e2e`: la compuerta `e2e` comprueba que
+   sus pruebas siguen pasando. Anótalo en la bitácora.
+5. **Compuertas (máximo 2 correcciones).** Corre en orden las compuertas de <SPEC>, cada una con
    `uv run python -m verification <nombre>`. Al primer fallo, relanza a quien corrige con la salida del error:
-   - Código, datos o `requirements.txt` → <ESPECIALISTA>.
+   - Código, datos, la página o `requirements.txt` → <ESPECIALISTA>. Con `costs`, un cambio de la página web
+     (`product/app/static/`) lo hace `developer`, porque `costs` no toca la página.
    - Una prueba de `product/tests/` mal escrita (no el código) → `qa-unit`.
+   - Una prueba de `product/e2e/` mal escrita (no la página) → `qa-e2e`.
 
    Vuelve a empezar este paso. Tras 2 correcciones sin pasar → ESCALAR (paso 7).
 6. **Evaluador-optimizador (máximo 2 vueltas).** Lanza `qa-style` con «Revisa el producto». Si la primera línea de
@@ -57,6 +67,7 @@ Lleva una bitácora: una línea por paso con lo que pasó.
 7. **Pipeline y reporte.** Corre `uv run python scripts/pipeline.py`. Escribe `output/report.md` con:
    - La especificación construida y el estado (LISTA o ESCALAR A UNA PERSONA, con el motivo).
    - Los rechazos del plan, las correcciones y las vueltas de QA.
+   - Con `costs`, la tabla que imprime `evaluate` (calidad, costo y tokens de la línea base y con palancas).
    - La bitácora y un enlace a `output/pipeline.md`.
    - Cómo arrancar el producto para probarlo a mano.
 

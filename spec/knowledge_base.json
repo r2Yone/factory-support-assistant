@@ -55,7 +55,7 @@
       "id": "KB-0003",
       "title": "Restablecer la contraseña de red",
       "category": "Cuentas",
-      "keywords": ["contraseña", "olvidé", "vencida", "venció", "expiró", "restablecer", "bloqueada", "bloqueado"],
+      "keywords": ["contraseña", "password", "olvidé", "olvidó", "olvidada", "recuperar", "vencida", "venció", "expiró", "restablecer", "bloqueada", "bloqueado"],
       "solution": "Entra al portal de autoservicio, elige Olvidé mi contraseña y confirma con el código que llega a tu celular. La nueva contraseña tarda hasta 15 minutos en llegar a todos los sistemas.",
       "status": "vigente",
       "updated": "2026-09-21"

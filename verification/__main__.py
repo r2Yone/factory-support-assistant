@@ -12,6 +12,7 @@ Uso: ``uv run python -m verification <paso>``, con uno de estos pasos:
 Código 0: pasa. Cualquier otro: falla, y la salida dice por qué.
 """
 
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -27,6 +28,9 @@ STEPS = {
     "evaluate": ([sys.executable, "-m", "verification.evaluate"], ROOT),
     "production": ([sys.executable, "-m", "verification.production"], ROOT),
 }
+# Las verificaciones nunca leen el archivo de configuración de la persona
+# (spec/03-costs.md): corren solo con el entorno que ponen ellas.
+ISOLATED = {"ENV_FILE": "none"}
 
 
 def run(step: str, extra: list[str] | None = None) -> int:
@@ -41,7 +45,10 @@ def run(step: str, extra: list[str] | None = None) -> int:
     if not (PRODUCT / "app").is_dir():
         print(f"[FAIL] {step}: todavía no existe product/app/")
         return 1
-    code = subprocess.run(command + (extra or []), cwd=folder, check=False).returncode
+    env = {**os.environ, **ISOLATED}
+    code = subprocess.run(
+        command + (extra or []), cwd=folder, env=env, check=False
+    ).returncode
     print(f"[{'OK' if code == 0 else 'FAIL'}] {step}")
     return code
 

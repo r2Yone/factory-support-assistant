@@ -4,7 +4,8 @@ Los agentes construyen el producto en `product/` a partir de la especificación 
 
 - `/factory architecture` construye `spec/01-architecture.md` (architect, qa-unit, developer y qa-style).
 - `/factory observability` agrega `spec/02-observability.md` (architect, qa-unit, observability y qa-style).
-- `.claude/agents/`: los demás agentes (costs, qa-e2e, security, deploy y triage) se usarán cuando existan las especificaciones de costos y producción.
+- `/factory costs` agrega `spec/03-costs.md` (architect, qa-unit, costs y qa-e2e en paralelo, y qa-style).
+- `.claude/agents/`: los demás agentes (security, deploy y triage) se usarán cuando exista la especificación de producción.
 - `hooks/permissions.py`: cada agente escribe solo en sus carpetas; nadie lee `.env` y nadie publica sin`output/approved.txt`.
 - `hooks/activity_log.py`: bitácora de cada herramienta; `scripts/pipeline.py` dibuja el pipeline.
 - `verification/`: el código decide si un paso terminó bien, no el agente.

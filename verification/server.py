@@ -20,6 +20,9 @@ DEFAULTS = {
     "MODEL_PROVIDER": "fake",
     "API_KEYS": f"factory:{FACTORY_KEY}",
     "RATE_LIMIT_PER_MINUTE": "1000",
+    # Nunca se lee el archivo de configuración de la persona; una prueba puede
+    # apuntar ENV_FILE a un archivo temporal suyo.
+    "ENV_FILE": "none",
 }
 
 

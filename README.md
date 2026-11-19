@@ -13,7 +13,7 @@ y una persona aprueba el plan y revisa el resultado.
 | --- | --- | --- |
 | Plan | `architect` y tú lo apruebas | Humano en el lazo |
 | Pruebas primero | `qa-unit` | TDD |
-| Código | El especialista de la especificación: `developer` (arquitectura) u `observability` | |
+| Código | El especialista de la especificación: `developer`, `observability` o `costs` (con `qa-e2e` en paralelo) | Paralelización |
 | unit → contract → qa | El código decide; al primer fallo se corrige (máximo 2) | Encadenamiento con compuertas |
 | Revisión contra QA.md | `qa-style` devuelve APROBADO o CAMBIOS (máximo 2 vueltas) | Evaluador-optimizador |
 | Pipeline y reporte | `scripts/pipeline.py` con la bitácora | |
@@ -36,6 +36,11 @@ Ejecuta `claude` y, dentro, escribe `/factory` con la especificación que quiere
 
 1. `/factory architecture`: `spec/01-architecture.md`, el asistente que busca soluciones o transfiere.
 2. `/factory observability`: `spec/02-observability.md`, folio por petición, logs JSON, métricas y trazas.
+3. `/factory costs`: `spec/03-costs.md`, modelo real de Cloudflare, palancas de costo y pruebas en el navegador.
+   La primera vez instala el navegador de las pruebas con `uv run playwright install chromium`.
+
+Desde `costs`, el producto se configura en `product/.env` (copia de `product/.env.example` con tus valores). Las
+verificaciones de la fábrica nunca leen ese archivo (`ENV_FILE=none`): siempre corren con el modelo simulado.
 
 Al terminar tendrás:
 

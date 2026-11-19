@@ -42,7 +42,8 @@ def test_a_problem_without_a_solution_is_escalated_to_its_team(api):
     assert body["escalated"] is True
     assert body["team"] == "Soporte en sitio"
     assert "Soporte en sitio" in body["answer"]
-    assert body["steps"] == 3
+    # Buscar y transferir: la transferencia termina sin otra llamada al modelo
+    assert body["steps"] == 2
 
 
 def test_an_obsolete_article_is_never_offered(api):

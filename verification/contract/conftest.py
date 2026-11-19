@@ -28,6 +28,28 @@ def api_logged(tmp_path_factory):
 
 
 @pytest.fixture(scope="session")
+def config_file(tmp_path_factory):
+    """Un archivo de configuración temporal que apaga el enrutamiento."""
+    path = tmp_path_factory.mktemp("config") / "support.env"
+    path.write_text("ROUTING=false\n", encoding="utf-8")
+    return path
+
+
+@pytest.fixture(scope="session")
+def api_from_file(config_file):
+    """El producto configurado con el archivo temporal."""
+    with running_product(8773, ENV_FILE=str(config_file)) as client:
+        yield client
+
+
+@pytest.fixture(scope="session")
+def api_env_wins(config_file):
+    """El producto con el archivo temporal y ``ROUTING=true`` en el entorno."""
+    with running_product(8774, ENV_FILE=str(config_file), ROUTING="true") as client:
+        yield client
+
+
+@pytest.fixture(scope="session")
 def api_private(tmp_path_factory):
     """El producto con ``LOG_CONVERSATION_TEXT=false`` y su log en un archivo."""
     log = tmp_path_factory.mktemp("private") / "product.log"
