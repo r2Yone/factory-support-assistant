@@ -5,12 +5,14 @@ import httpx
 from verification import production
 
 
-def fake_render(key_required=True, healthy=True):
+def fake_render(checks_keys=True, healthy=True, public=False):
     def handler(request):
         if request.url.path == "/health":
             return httpx.Response(200 if healthy else 503)
-        has_key = request.headers.get("X-API-Key") == "good-key"
-        return httpx.Response(200 if has_key or not key_required else 401)
+        key = request.headers.get("X-API-Key")
+        if key is None:
+            return httpx.Response(200 if public else 401)
+        return httpx.Response(200 if key == "good-key" or not checks_keys else 401)
 
     return httpx.Client(transport=httpx.MockTransport(handler))
 
@@ -20,8 +22,12 @@ def test_a_healthy_protected_service_passes(capsys):
     assert capsys.readouterr().out.count("[OK]") == 3
 
 
-def test_a_service_without_keys_fails():
-    open_service = fake_render(key_required=False)
+def test_a_public_demo_that_checks_keys_passes():
+    assert production.smoke("https://x", "good-key", fake_render(public=True))
+
+
+def test_a_service_that_accepts_any_key_fails():
+    open_service = fake_render(checks_keys=False)
     assert not production.smoke("https://x", "good-key", open_service)
 
 

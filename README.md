@@ -13,9 +13,11 @@ y una persona aprueba el plan y revisa el resultado.
 | --- | --- | --- |
 | Plan | `architect` y tú lo apruebas | Humano en el lazo |
 | Pruebas primero | `qa-unit` | TDD |
-| Código | El especialista de la especificación: `developer`, `observability` o `costs` (con `qa-e2e` en paralelo) | Paralelización |
+| Código | El especialista de la especificación: `developer`, `observability`, `costs` (con `qa-e2e` en paralelo) o `security`, `deploy` y `qa-e2e` en paralelo | Paralelización |
 | unit → contract → qa | El código decide; al primer fallo se corrige (máximo 2) | Encadenamiento con compuertas |
 | Revisión contra QA.md | `qa-style` devuelve APROBADO o CAMBIOS (máximo 2 vueltas) | Evaluador-optimizador |
+| Publicar (solo `production`) | Tú apruebas; `scripts/publish.py` hace el push y Render despliega si el CI pasa | Humano en el lazo |
+| Prueba de humo | Si falla, `triage` decide quién corrige (máximo 2 ciclos) | Enrutamiento |
 | Pipeline y reporte | `scripts/pipeline.py` con la bitácora | |
 
 ## Preparar
@@ -38,6 +40,14 @@ Ejecuta `claude` y, dentro, escribe `/factory` con la especificación que quiere
 2. `/factory observability`: `spec/02-observability.md`, folio por petición, logs JSON, métricas y trazas.
 3. `/factory costs`: `spec/03-costs.md`, modelo real de Cloudflare, palancas de costo y pruebas en el navegador.
    La primera vez instala el navegador de las pruebas con `uv run playwright install chromium`.
+4. `/factory production support-assistant`: `spec/04-production.md`, claves por cliente, límite de peticiones,
+   compliance, contenedor, CI y Render. Al final te pide aprobación para publicar, crea el repositorio privado
+   `support-assistant` en GitHub (necesitas `gh auth login`) y te guía para crear el servicio en Render y correr la
+   prueba de humo.
+5. `/factory demo support-assistant`: `spec/05-demo.md`, la página pública sin clave para una demostración, con
+   límite de preguntas por IP y tope de gasto diario. Se publica igual que `production`.
+6. `/factory traces support-assistant`: `spec/06-traces.md`, tokens, costo y etiquetas en las trazas de LangSmith,
+   `.env.example` completo y la meta de latencia p95 de 4 segundos. Se publica igual que `production`.
 
 Desde `costs`, el producto se configura en `product/.env` (copia de `product/.env.example` con tus valores). Las
 verificaciones de la fábrica nunca leen ese archivo (`ENV_FILE=none`): siempre corren con el modelo simulado.

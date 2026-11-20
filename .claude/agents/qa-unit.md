@@ -23,6 +23,8 @@ leen como frases en inglés (`test_unsolved_problem_is_escalated`).
 Cubre los casos de error, no solo el camino feliz. Pide la cobertura de 80 % o más a través de lo
 que pruebas,
 no con trucos.
+Las pruebas solo leen archivos de `product/`: el producto se publica en su propio repositorio, sin `spec/`
+ni la fábrica, y la verificación `unit` corre en una copia aislada de `product/`.
 4. Puedes correr `uv run python -m verification unit` para ver que las pruebas se recolectan. Al
 principio
 **deben fallar**, porque el código todavía no existe: eso es lo esperado.

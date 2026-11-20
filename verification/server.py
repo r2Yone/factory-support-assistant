@@ -44,6 +44,18 @@ def running_product(port: int, log_file: Path | None = None, **env: str):
         yield from _serve(server, port)
 
 
+def importing_product(**env: str) -> subprocess.CompletedProcess:
+    """Importa ``app.main`` con ``env`` y devuelve el proceso terminado.
+
+    Sirve para comprobar que una configuración impide arrancar, sin abrir un
+    puerto. Nunca lee el archivo de configuración de la persona.
+    """
+    settings = {**os.environ, "ENVIRONMENT": "development", "ENV_FILE": "none", **env}
+    command = [sys.executable, "-c", "import app.main"]
+    return subprocess.run(command, cwd=PRODUCT, env=settings, capture_output=True,
+                          text=True, timeout=30, check=False)
+
+
 def _serve(server: subprocess.Popen, port: int):
     """Espera a que el producto responda, entrega el cliente y lo detiene."""
     url = f"http://127.0.0.1:{port}"

@@ -13,15 +13,19 @@ import httpx
 
 
 def smoke(url: str, key: str, client: httpx.Client) -> bool:
-    """Comprueba ``/health``, ``/ask`` sin clave y ``/ask`` con clave.
+    """Comprueba ``/health``, ``/ask`` con una clave equivocada y con la clave.
 
+    La clave equivocada siempre da 401, con o sin modo demo (spec/05-demo.md).
     Imprime el código recibido en cada una: con él se ve la causa de una falla
     (401: la clave no coincide; 502: el modelo no responde).
     """
     question = {"question": "No me puedo conectar a la VPN desde mi casa"}
+    wrong = {"X-API-Key": "smoke-wrong-key"}
     checks = [
         ("GET /health", 200, client.get(f"{url}/health")),
-        ("POST /ask sin clave", 401, client.post(f"{url}/ask", json=question)),
+        ("POST /ask con clave equivocada", 401, client.post(
+            f"{url}/ask", json=question, headers=wrong
+        )),
         ("POST /ask con clave", 200, client.post(
             f"{url}/ask", json=question, headers={"X-API-Key": key}
         )),

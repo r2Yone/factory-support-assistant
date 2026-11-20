@@ -56,5 +56,26 @@ def test_publish_runs_each_command_in_the_product(tmp_path, monkeypatch, capsys)
     assert "[OK] publish" in capsys.readouterr().out
 
 
+def test_an_approval_is_used_only_once(tmp_path, monkeypatch):
+    ready(tmp_path, monkeypatch)
+    monkeypatch.setattr(
+        publish.subprocess, "run",
+        lambda command, **_: subprocess.CompletedProcess(command, 0),
+    )
+    assert publish.main(["support-assistant"]) == 0
+    assert not publish.APPROVAL.exists()
+    assert publish.main(["support-assistant"]) == 1
+
+
+def test_a_failed_publication_keeps_the_approval(tmp_path, monkeypatch):
+    ready(tmp_path, monkeypatch)
+    monkeypatch.setattr(
+        publish.subprocess, "run",
+        lambda command, **_: subprocess.CompletedProcess(command, 1),
+    )
+    assert publish.main(["support-assistant"]) == 1
+    assert publish.APPROVAL.exists()
+
+
 def test_usage_needs_the_repository_name():
     assert publish.main([]) == 2

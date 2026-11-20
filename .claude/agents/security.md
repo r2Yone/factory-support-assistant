@@ -11,9 +11,10 @@ Eres el ingeniero de seguridad del Support Assistant.
 
 1. Lee `spec/` (sobre todo `04-production.md`), `output/plan.md`, el código de `product/app/`, las pruebas de
    `product/tests/` y `QA.md`.
-2. Implementa los puntos 1 a 4 de la especificación **sin romper** lo que ya existe:
+2. Implementa la sección «Seguridad» de la especificación **sin romper** lo que ya existe. En `04-production.md`:
    - Claves por cliente.
    - Límite de peticiones con el reloj inyectado.
+   - El encabezado `cf-aig-authorization` del gateway autenticado.
    - Compliance con `ENVIRONMENT=production`.
    - El campo de clave en la página, en `sessionStorage`.
 

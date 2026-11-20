@@ -3,7 +3,8 @@
 Uso: ``uv run python scripts/publish.py <nombre-del-repositorio>``
 
 Solo corre si una persona aprobó (existe ``output/approved.txt``); además, el hook
-``hooks/permissions.py`` bloquea este comando sin esa aprobación. Render toma el
+``hooks/permissions.py`` bloquea este comando sin esa aprobación. Al publicar, la
+aprobación se borra: cada publicación necesita la suya. Render toma el
 código de ese repositorio y publica cuando el pipeline de CI pasa.
 """
 
@@ -67,6 +68,9 @@ def main(args: list[str]) -> int:
         if subprocess.run(command, cwd=PRODUCT, check=False).returncode != 0:
             print("[FAIL] publish")
             return 1
+    # La aprobación vale para una sola publicación: la siguiente corrida debe
+    # pedirla otra vez a una persona.
+    APPROVAL.unlink()
     print("[OK] publish")
     return 0
 

@@ -1,5 +1,9 @@
 """Contrato de los costos: cada respuesta dice qué modelo usó y cuánto costó."""
 
+import json
+
+from verification.server import PRODUCT
+
 SMALL = "@cf/meta/llama-3.1-8b-instruct-fast"
 LARGE = "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
 
@@ -59,6 +63,14 @@ def test_a_forgotten_password_finds_its_article(api):
         body = ask(api, question)
         assert "KB-0003" in body["answer"]
         assert body["escalated"] is False
+
+
+def test_the_product_knowledge_base_is_a_copy_of_the_specification():
+    def read(path):
+        return json.loads(path.read_text(encoding="utf-8"))
+
+    spec = PRODUCT.parent / "spec" / "knowledge_base.json"
+    assert read(PRODUCT / "data" / "knowledge_base.json") == read(spec)
 
 
 def test_an_escalation_ends_with_the_fixed_message(api):
