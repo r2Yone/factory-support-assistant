@@ -8,6 +8,7 @@ Los agentes construyen el producto en `product/` a partir de la especificación 
 - `/factory production [repositorio]` agrega `spec/04-production.md` (architect, qa-unit, security, deploy y qa-e2e en paralelo, qa-style), pide aprobación para publicar, publica en GitHub para que Render lo despliegue y corre la prueba de humo (triage si falla).
 - `/factory demo [repositorio]` agrega `spec/05-demo.md` (la página sin clave, con límite por IP y tope de gasto diario), con el mismo flujo de publicación que `production`.
 - `/factory traces [repositorio]` agrega `spec/06-traces.md` (observability y deploy en paralelo): tokens, costo y etiquetas en LangSmith, y la meta de latencia de 4 segundos. Se publica igual que `production`.
+- `/factory page [repositorio]` agrega `spec/07-page.md` (developer y qa-e2e en paralelo): la página rediseñada y el texto de bienvenida nuevo. Se publica igual que `production`, y la persona revisa la página antes de aprobar.
 - `scripts/publish.py` borra `output/approved.txt` al publicar: cada publicación necesita su propia aprobación.
 - `hooks/permissions.py`: cada agente escribe solo en sus carpetas; nadie lee `.env` y nadie publica sin `output/approved.txt`.
 - `hooks/activity_log.py`: bitácora de cada herramienta; `scripts/pipeline.py` dibuja el pipeline.

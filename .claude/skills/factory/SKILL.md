@@ -4,7 +4,7 @@ description: >-
   especialistas → compuertas → qa-style → reporte. Las que publican además:
   aprobación de publicar → publish → Render (persona) → humo → triage.
   Ejemplo /factory costs o /factory production support-assistant
-argument-hint: "<architecture|observability|costs|production|demo|traces> [repositorio] [--aprobar]"
+argument-hint: "<architecture|observability|costs|production|demo|traces|page> [repositorio] [--aprobar]"
 disable-model-invocation: true
 allowed-tools: >-
   Agent, Read, Write, AskUserQuestion, Bash(uv run python -m verification *),
@@ -25,8 +25,9 @@ Entrada: $ARGUMENTS. La primera palabra dice qué especificación se construye (
 | `production` | `spec/04-production.md` | `security`, `deploy` y `qa-e2e` en paralelo | Debe existir `product/e2e/` |
 | `demo` | `spec/05-demo.md` | `security`, `deploy` y `qa-e2e` en paralelo | Debe existir `product/render.yaml` |
 | `traces` | `spec/06-traces.md` | `observability` y `deploy` en paralelo | Debe existir `product/render.yaml` |
+| `page` | `spec/07-page.md` | `developer` y `qa-e2e` en paralelo | Debe existir `product/render.yaml` |
 
-`production`, `demo` y `traces` son **las que publican**: además del producto, cambian lo que corre en Render.
+`production`, `demo`, `traces` y `page` son **las que publican**: además del producto, cambian lo que corre en Render.
 
 Compuertas: con `architecture` y `observability` son `unit`, `contract` y `qa`. Con `costs` y las que publican se
 agregan `e2e` y `evaluate`, en ese orden, al final.
@@ -41,7 +42,7 @@ especificaciones ya construidas y de la que se construye.
 - Si la entrada no está en la tabla, detente y muestra las opciones.
 - Si falta la especificación, detente y di: «Falta <especificación>».
 - Si falta el requisito de `observability` o `costs`, detente y di: «Primero corre /factory architecture». Si falta
-  el de `production`, di: «Primero corre /factory costs». Si falta el de `demo` o `traces`, di: «Primero corre
+  el de `production`, di: «Primero corre /factory costs». Si falta el de `demo`, `traces` o `page`, di: «Primero corre
   /factory production».
 
 En adelante, <SPEC> es la especificación, <ESPECIALISTA> su especialista y <REPO> el nombre del repositorio.
@@ -68,6 +69,9 @@ Lleva una bitácora: una línea por paso con lo que pasó.
      - `deploy` con «Prepara la sección Publicación de <SPEC>. El repositorio y el servicio de Render se llaman
        <REPO>».
      - `qa-e2e` con «Actualiza las pruebas de punta a punta según <SPEC>».
+   - Con `page`, en UN SOLO mensaje lanza los dos:
+     - `developer` con «Implementa <SPEC> según el plan aprobado».
+     - `qa-e2e` con «Actualiza las pruebas de punta a punta según <SPEC>».
    - Con `traces`, en UN SOLO mensaje lanza los dos:
      - `observability` con «Implementa la sección Observabilidad de <SPEC> según el plan aprobado».
      - `deploy` con «Prepara la sección Publicación de <SPEC>. El repositorio y el servicio de Render se llaman
@@ -76,14 +80,14 @@ Lleva una bitácora: una línea por paso con lo que pasó.
    `uv run python -m verification <nombre>` (`contract` con su número). Al primer fallo, relanza a quien corrige con la salida del error:
    - Código, datos, la página o `requirements.txt` → <ESPECIALISTA>. Con `costs`, un cambio de la página web
      (`product/app/static/`) lo hace `developer`, porque `costs` no toca la página. En las que publican, la aplicación
-     y la página son de `security` (con `traces`, de `observability`), y el contenedor, el CI, `render.yaml` y `scripts/` son de `deploy`.
+     y la página son de `security` (con `traces`, de `observability`; con `page`, de `developer`), y el contenedor, el CI, `render.yaml` y `scripts/` son de `deploy`.
    - Una prueba de `product/tests/` mal escrita (no el código) → `qa-unit`.
    - Una prueba de `product/e2e/` mal escrita (no la página) → `qa-e2e`.
 
    Vuelve a empezar este paso. Tras 2 correcciones sin pasar → ESCALAR (paso 10).
 6. **Evaluador-optimizador (máximo 2 vueltas).** Lanza `qa-style` con «Revisa el producto». Si la primera línea de
    `output/qa-review.md` es `CAMBIOS`, manda cada hallazgo a su dueño:
-   - Código, datos o `product/README.md` → <ESPECIALISTA> (en las que publican, `security`; con `traces`, `observability`).
+   - Código, datos o `product/README.md` → <ESPECIALISTA> (en las que publican, `security`; con `traces`, `observability`; con `page`, `developer`).
    - Dockerfile, CI, `render.yaml` o `scripts/` → `deploy`.
    - Pruebas → `qa-unit` o `qa-e2e`.
    - Plan, ADR o `product/doc/` → `architect`.
@@ -97,6 +101,9 @@ Lleva una bitácora: una línea por paso con lo que pasó.
    - Las etapas del pipeline de CI.
    - Los secretos que la persona debe poner en Render (solo sus nombres).
    - El nombre del repositorio (<REPO>), que será privado.
+   - Con `page`, cómo ver la página antes de publicar: desde `product/`, con `PUBLIC_PAGE=true` en su
+     configuración, correr `uv run uvicorn app.main:app` y abrir http://127.0.0.1:8000 (en claro y en oscuro, y en
+     el ancho de un celular). Espera a que la persona diga que la revisó antes de preguntar.
 
    Pregunta: «¿Publico en GitHub para que Render lo despliegue? Escribe si o no».
    - Con «no» → DETENIDA POR LA PERSONA (paso 10).
