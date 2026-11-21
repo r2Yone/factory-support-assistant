@@ -39,9 +39,7 @@ ISOLATED = {"ENV_FILE": "none"}
 # de product/ fuera de la fábrica, igual que en el CI. Lo que queda fuera de la
 # copia nunca se sube o no es del producto.
 STANDALONE = {"unit"}
-NOT_COPIED = shutil.ignore_patterns(
-    ".env", ".git", ".venv", "__pycache__", ".coverage", "*.log"
-)
+NOT_COPIED = (".env", ".git", ".venv", "__pycache__", ".coverage", "*.log")
 
 
 def _run_in(command: list[str], folder: Path, step: str) -> int:
@@ -57,7 +55,7 @@ def _run_in(command: list[str], folder: Path, step: str) -> int:
         return subprocess.run(command, cwd=folder, env=env, check=False).returncode
     with tempfile.TemporaryDirectory() as temporary:
         copy = Path(temporary) / "product"
-        shutil.copytree(folder, copy, ignore=NOT_COPIED)
+        shutil.copytree(folder, copy, ignore=shutil.ignore_patterns(*NOT_COPIED))
         return subprocess.run(command, cwd=copy, env=env, check=False).returncode
 
 
