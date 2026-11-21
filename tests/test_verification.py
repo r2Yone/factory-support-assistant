@@ -71,8 +71,10 @@ def test_unit_runs_in_a_standalone_copy_of_the_product(tmp_path, monkeypatch):
 
 
 def test_steps_never_read_the_personal_config_file(tmp_path, monkeypatch):
-    (tmp_path / "product" / "app").mkdir(parents=True)
-    monkeypatch.setattr(runner, "PRODUCT", tmp_path / "product")
+    product = tmp_path / "product"
+    (product / "app").mkdir(parents=True)
+    monkeypatch.setattr(runner, "PRODUCT", product)
+    monkeypatch.setitem(runner.STEPS, "unit", (["pytest"], product))
     monkeypatch.setenv("ENV_FILE", "personal")
     envs = []
 

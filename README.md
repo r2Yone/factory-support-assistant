@@ -59,6 +59,7 @@ Las verificaciones de la fábrica nunca usan estas cuentas: corren con el modelo
 git clone https://github.com/r2Yone/factory-support-assistant.git
 cd factory-support-assistant
 uv venv --python 3.12
+.venv\Scripts\activate
 uv pip install -r requirements.txt
 uv run playwright install chromium
 uv run python scripts/verify.py
@@ -66,20 +67,41 @@ uv run python scripts/verify.py
 
 `scripts/verify.py` comprueba la fábrica misma (sus pruebas, pylint y que no haya emojis).
 
-### El producto: continuar o reconstruir
+### El producto: reconstruir
 
-`product/` está en el `.gitignore` de la fábrica, así que **al clonar llega vacía**. Elige uno:
+- **Reconstruir desde cero.**  Es lento, y el código no será idéntico al del respositorio `support-assistant` publicado, porque lo escriben los agentes. Con `production`, `publish.py` crea el repositorio del producto en tu cuenta de GitHub.
 
-- **Continuar donde va el proyecto (recomendado).** Clona el producto dentro de la fábrica:
+## Correr la fábrica
 
-  ```powershell
-  git clone https://github.com/r2Yone/support-assistant.git product
-  ```
+La primera vez que abres `claude` en esta carpeta te pregunta **«Do you trust the files in this folder?»**:
+responde que sí. Sin esa confianza, Claude Code ignora los permisos de `.claude/settings.json` y los agentes no pueden
+correr las verificaciones.
 
-  Las siguientes especificaciones parten de ese código, y `scripts/publish.py` hace push a ese repositorio.
-- **Reconstruir desde cero.** Corre las especificaciones en orden, desde `/factory architecture`. Es lento, y el
-  código no será idéntico al publicado, porque lo escriben los agentes. Con `production`, `publish.py` crea el
-  repositorio del producto en tu cuenta de GitHub.
+Ejecuta `claude` y, dentro, escribe `/factory` con la especificación que quieres construir, en el siguiente orden:
+
+| Comando | Especificación | Especialistas |
+| --- | --- | --- |
+| `/factory architecture` | `spec/01-architecture.md`: el asistente que busca soluciones o transfiere | `developer` |
+| `/factory observability` | `spec/02-observability.md`: folio por petición, logs JSON, métricas y trazas | `observability` |
+| `/factory costs` | `spec/03-costs.md`: modelo real de Cloudflare, palancas de costo y pruebas en el navegador | `costs` y `qa-e2e` |
+| `/factory production support-assistant` | `spec/04-production.md`: claves por cliente, límite de peticiones, compliance, contenedor, CI y Render | `security`, `deploy` y `qa-e2e` |
+| `/factory demo support-assistant` | `spec/05-demo.md`: la página pública sin clave, con límite por IP y tope de gasto diario | `security`, `deploy` y `qa-e2e` |
+| `/factory traces support-assistant` | `spec/06-traces.md`: tokens, costo y etiquetas en LangSmith; meta de latencia de 4 s | `observability` y `deploy` |
+| `/factory page support-assistant` | `spec/07-page.md`: Diseña la página y el texto que tiene | `developer` y `qa-e2e` |
+
+- Las **factory que publican son:**
+- `production`, `demo`, `traces` y `page`. La segunda palabra (`support-assistant`) es el nombre del repositorio
+  del producto y del servicio de Render. Al final te piden aprobación para publicar: cada publicación necesita la
+  suya, porque `scripts/publish.py` borra `output/approved.txt` al publicar. Después te guían para revisar el CI en
+  la pestaña Actions, crear o actualizar el servicio en Render y correr la prueba de humo.
+- `--aprobar` aprueba el plan por adelantado; publicar siempre se pregunta.
+
+Al terminar tendrás:
+
+- `output/plan.md`: el plan que aprobaste.
+- `output/qa-review.md`: la revisión de QA.
+- `output/report.md`: el estado de la corrida.
+- `output/pipeline.md`: el diagrama del pipeline (vista previa de Markdown).
 
 ### Tu configuración del producto
 
@@ -97,38 +119,6 @@ PUBLIC_PAGE=true
 
 Para generar una clave: `uv run python -c "import secrets; print(secrets.token_urlsafe(24))"`. Sin las variables
 `CF_*` y con `MODEL_PROVIDER=fake` (el valor por omisión), responde el modelo simulado.
-
-## Correr la fábrica
-
-La primera vez que abres `claude` en esta carpeta te pregunta **«Do you trust the files in this folder?»**:
-responde que sí. Sin esa confianza, Claude Code ignora los permisos de `.claude/settings.json` y los agentes no pueden
-correr las verificaciones.
-
-Ejecuta `claude` y, dentro, escribe `/factory` con la especificación que quieres construir, en orden:
-
-| Comando | Especificación | Especialistas |
-| --- | --- | --- |
-| `/factory architecture` | `spec/01-architecture.md`: el asistente que busca soluciones o transfiere | `developer` |
-| `/factory observability` | `spec/02-observability.md`: folio por petición, logs JSON, métricas y trazas | `observability` |
-| `/factory costs` | `spec/03-costs.md`: modelo real de Cloudflare, palancas de costo y pruebas en el navegador | `costs` y `qa-e2e` |
-| `/factory production support-assistant` | `spec/04-production.md`: claves por cliente, límite de peticiones, compliance, contenedor, CI y Render | `security`, `deploy` y `qa-e2e` |
-| `/factory demo support-assistant` | `spec/05-demo.md`: la página pública sin clave, con límite por IP y tope de gasto diario | `security`, `deploy` y `qa-e2e` |
-| `/factory traces support-assistant` | `spec/06-traces.md`: tokens, costo y etiquetas en LangSmith; meta de latencia de 4 s | `observability` y `deploy` |
-| `/factory page support-assistant` | `spec/07-page.md`: la página rediseñada y el texto de bienvenida nuevo | `developer` y `qa-e2e` |
-
-- Si continúas con el producto clonado, solo corres las especificaciones nuevas.
-- `production`, `demo`, `traces` y `page` son **las que publican**. La segunda palabra es el nombre del repositorio
-  del producto y del servicio de Render. Al final te piden aprobación para publicar: cada publicación necesita la
-  suya, porque `scripts/publish.py` borra `output/approved.txt` al publicar. Después te guían para revisar el CI en
-  la pestaña Actions, crear o actualizar el servicio en Render y correr la prueba de humo.
-- `--aprobar` aprueba el plan por adelantado; publicar siempre se pregunta.
-
-Al terminar tendrás:
-
-- `output/plan.md`: el plan que aprobaste.
-- `output/qa-review.md`: la revisión de QA.
-- `output/report.md`: el estado de la corrida.
-- `output/pipeline.md`: el diagrama del pipeline (vista previa de Markdown).
 
 ## Comprobar
 
